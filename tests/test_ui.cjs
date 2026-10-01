@@ -59,7 +59,7 @@ const path=require('node:path');
   await page.locator('#openProject').click();
   await page.waitForFunction(()=>document.querySelector('#animalMode').value==='frog');
   assert.equal(await page.locator('#threshold').inputValue(),'115');assert.equal(await page.locator('#snapshotTimes').inputValue(),'0.3, 0.5');
-  await page.locator('#help').click();assert.match(await page.locator('#guideImage').getAttribute('src'),/guide-frog-en/);await page.locator('#closeHelp').click();
+  await page.locator('#help').click();assert.match(await page.locator('#guideImage').getAttribute('src'),/guide-frog-en/);await page.waitForFunction(()=>document.querySelector('#frogExample img').naturalWidth>0);await page.locator('#closeHelp').click();
   const denied=await page.request.get(new URL('/wrong-token/api/projects',url).href);assert.equal(denied.status(),403);
   const crossOrigin=await page.request.post(new URL('api/demo',url).href,{headers:{Origin:'https://example.org'},data:{}});assert.equal(crossOrigin.status(),403);
   assert.deepEqual(errors,[]);

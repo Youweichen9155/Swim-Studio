@@ -379,7 +379,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             filename = route or "index.html"
             path = (WEB / filename).resolve()
-            if not path.is_relative_to(WEB) or path.suffix not in {".html", ".css", ".js", ".svg"}:
+            if not path.is_relative_to(WEB) or path.suffix not in {".html", ".css", ".js", ".svg", ".png"}:
                 raise PermissionError("Invalid asset")
             self.reply(path.read_bytes(), content_type=mimetypes.guess_type(path.name)[0] or "text/plain")
         except PermissionError as exc:
