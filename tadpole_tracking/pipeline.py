@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from .arena import describe as describe_arena
+from .modes import animal_mode, hindlimb_enabled, tracking_queries
 
 from .analysis import (
     apply_query_exclusions,
@@ -68,11 +69,12 @@ def _write_method_note(
     head = config["head_point_selection"]
     review = config["forceps_contact_review"]
     analysis = config["analysis"]
-    text = f"""# Tadpole swimming trajectory analysis
+    target = "body reference" if animal_mode(config) == "frog" else "head"
+    text = f"""# {animal_mode(config).capitalize()} swimming trajectory analysis
 
 - Program version: {PROGRAM_VERSION}.
 - Input mode: {input_mode}. CoTracker was not run when the tracking cache was reused.
-- Head position is the frame-wise median of {len(head['query_points_raw_px']) - len(head['drop_query_indices'])} retained, jointly propagated head/eye points. Frames require at least {head['minimum_visible_points']} visible points and median point spread <= {head['maximum_spread_px']:g} px.
+- The {target} position is the frame-wise median of {len(head['query_points_raw_px']) - len(head['drop_query_indices'])} retained, jointly propagated selected points. Frames require at least {head['minimum_visible_points']} visible points and median point spread <= {head['maximum_spread_px']:g} px.
 - {describe_arena(calibration)}
 - The primary forceps input is the manually reviewed TSV ({interval_count} intervals). No legacy resolution-specific automatic forceps detector is used.
 - Contact episodes bridge gaps <= {review['contact_episode_gap_s']:.2f} s and must last >= {review['minimum_contact_duration_s']:.2f} s. Episodes separated by <= {review['stimulation_bout_gap_s']:.2f} s form one stimulation bout.
@@ -81,6 +83,10 @@ def _write_method_note(
 - Result: {summary['tracked_frames']} frames, {summary['independent_stimulation_bouts']} bouts, strict distance {summary['total_analyzable_distance_mm']:.6f} mm, analyzable fraction {summary['analyzable_fraction']:.6f}.
 - Distance accuracy is limited by perspective, dish fitting, nominal dish diameter, video compression, point selection, and manual contact annotation.
 """
+    if animal_mode(config) == "frog":
+        text += "\n- Frog mode uses visible trunk points. Direct-contact intervals split the trajectory before interpolation and smoothing.\n"
+        if hindlimb_enabled(config):
+            text += "- Hindlimb spread is the posterior silhouette x95-x05 span in a physically scaled, body-aligned view. A fixed posterior cutoff is estimated from the median torso cutoff across usable frames. Contact, invisible axis points and invalid segmentation are excluded without interpolation. Review the mask montage/video; this is not anatomical toe separation.\n"
     path.write_text(text, encoding="utf-8")
 
 
@@ -155,9 +161,7 @@ def run_analysis(
         video_sha256 = sha256_file(video_path)
         video_size_bytes = video_path.stat().st_size
 
-    query_points = np.asarray(
-        config["head_point_selection"]["query_points_raw_px"], dtype=np.float32
-    )
+    query_points = tracking_queries(config)
     model_was_run = False
     if force_retrack or not cache_path.is_file():
         if cache_only:
@@ -166,7 +170,7 @@ def run_analysis(
             raise FileNotFoundError(
                 "Video is required for model tracking; provide --video or place it at video.path"
             )
-        print("Tracking head points / 追踪头部点…", flush=True)
+        print("Tracking body and axis points / 追踪躯干与身体轴…" if animal_mode(config) == "frog" else "Tracking head points / 追踪头部点…", flush=True)
         tracks, visible, raw_indices, tracked_metadata = track_video(
             video_path, config["model_tracking"], query_points, repository_path
         )
@@ -207,9 +211,12 @@ def run_analysis(
         metadata["effective_fps"] = metadata["raw_fps"] / int(config["model_tracking"]["frame_step"])
         metadata["timebase_override"] = True
 
+    body_count = len(config["head_point_selection"]["query_points_raw_px"])
+    axis_tracks, axis_visible = tracks[:, body_count:].copy(), visible[:, body_count:].copy()
+    tracks, visible = tracks[:, :body_count], visible[:, :body_count]
     excluded = list(config["head_point_selection"].get("drop_query_indices", []))
     tracks, visible, retained_query_points = apply_query_exclusions(
-        tracks, visible, query_points, excluded
+        tracks, visible, query_points[:body_count], excluded
     )
     metadata["excluded_query_indices"] = excluded
     metadata["retained_query_point_count"] = int(len(retained_query_points))
@@ -238,6 +245,20 @@ def run_analysis(
     )
     table["stimulation_bout"] = bout_ids
     summary = make_summary(table, metadata, events, repeats)
+    summary["animal_mode"] = animal_mode(config)
+    summary["trajectory_reference"] = "body_point_median" if animal_mode(config) == "frog" else "head_point_median"
+    if animal_mode(config) == "frog":
+        body_table = table.rename(columns={c:c.replace("head_", "body_") for c in table if c.startswith("head_")})
+        body_table.to_csv(paths["tables"] / "01_frame_level_body_trajectory.tsv", sep="\t", index=False)
+    if hindlimb_enabled(config):
+        if not video_present:
+            summary["hindlimb_status"] = "requires_original_video"
+            print("Hindlimb silhouettes require the original video / 后肢轮廓复算需要原始视频", flush=True)
+        else:
+            from .frog import analyse_hindlimbs
+            print("Measuring posterior silhouettes / 测量后肢展开轮廓…", flush=True)
+            summary.update(analyse_hindlimbs(video_path, axis_tracks, axis_visible, raw_indices, table, config, paths,
+                make_video=config["output"]["make_video_qa"] and not skip_video_qa))
     arena = config["dish_calibration"]
     if arena.get("type") == "rectangle":
         summary.update(arena_type="rectangle", arena_width_mm=arena["width_mm"], arena_height_mm=arena["height_mm"])
@@ -383,7 +404,7 @@ def run_analysis(
             paths["video"] / "tracked_head_QA.mp4",
             float(metadata["effective_fps"]),
             tracks=tracks,
-            point_ids=[i + 1 for i in range(len(query_points)) if i not in excluded],
+            point_ids=[i + 1 for i in range(body_count) if i not in excluded],
         )
 
     return {

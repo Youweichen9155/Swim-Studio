@@ -35,7 +35,8 @@ def main():
             url = json.loads((work / 'desktop-session.json').read_text())['url']
             assets = {'': 'text/html', 'app.js': ('text/javascript', 'application/javascript'),
                       'style.css': 'text/css', 'guide-zh.svg': 'image/svg+xml',
-                      'guide-en.svg': 'image/svg+xml'}
+                      'guide-en.svg': 'image/svg+xml', 'guide-frog-zh.svg': 'image/svg+xml',
+                      'guide-frog-en.svg': 'image/svg+xml'}
             for asset, expected_type in assets.items():
                 with urllib.request.urlopen(url + asset, timeout=30) as response:
                     assert response.status == 200, asset
@@ -73,8 +74,16 @@ def main():
             assert tracked['analyzable_fraction'] > .95
             assert tracked['total_analyzable_distance_mm'] > 0
             assert not (work / 'empty-torch-cache/hub/checkpoints/scaled_online.pth').exists()
+            # Exercise the frog worker in the frozen application with the same
+            # synthetic recording. Shape assertions belong to test_frog_mode.py.
+            config['animal_mode'] = 'frog'
+            config['frog_hindlimb'] = {'enabled':True, 'axis_points_raw_px':[[64,110],[96,110]],
+                'threshold':120, 'polarity':'dark', 'crop_body_lengths':4.0}
+            frog = run(target)
+            assert frog['animal_mode'] == 'frog'
+            assert 'hindlimb_valid_fraction' in frog
             args.report.parent.mkdir(parents=True, exist_ok=True)
-            args.report.write_text(json.dumps({'status':'PASS','platform':os.name,'web_assets':list(assets),'cached_demo':summary,'fresh_synthetic_model':tracked,'empty_model_cache':True,'external_download_proxy_blocked':True,'no_python_or_git_from_user_PATH':True}, indent=2))
+            args.report.write_text(json.dumps({'status':'PASS','platform':os.name,'web_assets':list(assets),'cached_demo':summary,'fresh_synthetic_model':tracked,'frog_model':frog,'empty_model_cache':True,'external_download_proxy_blocked':True,'no_python_or_git_from_user_PATH':True}, indent=2))
             print('Standalone application and offline fresh-model tracking: PASS')
         finally:
             process.terminate()

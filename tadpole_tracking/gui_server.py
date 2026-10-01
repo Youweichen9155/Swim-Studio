@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 import uuid
 import zipfile
 from .runtime import resource_root, worker_command, frozen
+from .modes import frog_defaults, tracking_queries
 
 ROOT = resource_root()
 # macOS bundles symlink Frameworks/web to Resources/web. Compare canonical
@@ -73,9 +74,14 @@ class Application:
         return {"id": key, **read_json(path / "project.json"), "config": read_json(path / "config.json"),
                 "intervals": (path / "contacts.tsv").read_text(encoding="utf-8")}
 
-    def initialize(self, key, name, metadata=None, demo=False):
+    def initialize(self, key, name, metadata=None, demo=False, animal_mode="tadpole"):
         path = self.project(key)
         config = read_json(ROOT / "examples/configs/tadpole_recording_001.json")
+        if animal_mode not in {"tadpole", "frog"}:
+            raise ValueError("Unknown animal mode")
+        config["animal_mode"] = animal_mode
+        if animal_mode == "frog":
+            config["frog_hindlimb"] = frog_defaults()
         config["analysis_id"] = key
         config["video"]["logical_name"] = name
         config["model_tracking"]["cache_path"] = "tracks.npz"
@@ -92,6 +98,8 @@ class Application:
             config["video"].update(path="input" + Path(name).suffix.lower(), fps=metadata["raw_fps"],
                                    frame_count=metadata["raw_frame_count"], width_px=width, height_px=height)
             config["model_tracking"].update(roi_raw_px=[0, 0, width, height], model_size_px=[560, 560], device="cpu")
+            if animal_mode == "frog":
+                config["analysis"]["savgol_window_s"] = 0.2
             config["head_point_selection"].update(query_points_raw_px=[], maximum_spread_px=38, drop_query_indices=[])
             config["dish_calibration"] = {"type": "ellipse", "center_raw_px": [width/2, height/2],
                 "ellipse_diameters_px": [width*0.7, height*0.7], "ellipse_angle_degrees": 0, "dish_diameter_mm": 100}
@@ -137,7 +145,7 @@ class Application:
                 raise ValueError("Contact frame exceeds video / 接触帧超出视频")
             if not data.get("reviewed"):
                 raise ValueError("Review contact intervals or confirm no contact / 请核对接触区间或确认无接触")
-            if info.get("demo") and (config["head_point_selection"]["query_points_raw_px"] != original["head_point_selection"]["query_points_raw_px"] or config["model_tracking"]["frame_step"] != original["model_tracking"]["frame_step"]):
+            if info.get("demo") and (config.get("animal_mode", "tadpole") != "tadpole" or config["head_point_selection"]["query_points_raw_px"] != original["head_point_selection"]["query_points_raw_px"] or config["model_tracking"]["frame_step"] != original["model_tracking"]["frame_step"]):
                 raise ValueError("Demo cache has fixed query points and sampling / 演示缓存的追踪点及采样固定")
             pending.replace(path / "contacts.tsv")
         finally:
@@ -170,7 +178,7 @@ class Application:
                 command = worker_command("setup", output / "config.json")
             else:
                 # Cache reuse requires matching tracking settings, not just point coordinates.
-                fingerprint = {"model": project["config"]["model_tracking"], "points": config["head_point_selection"]["query_points_raw_px"]}
+                fingerprint = {"model": project["config"]["model_tracking"], "points": tracking_queries(config).tolist()}
                 signature = path / "tracking_settings.json"
                 reuse = (path / "tracks.npz").is_file() and signature.is_file() and read_json(signature) == fingerprint
                 mode = "--cache-only" if project.get("demo") else ("--force-retrack" if not reuse else "")
@@ -228,7 +236,7 @@ class Application:
                 write_json(replay / "config.json", config)
                 shutil.copyfile(output / "contacts.tsv", replay / "contacts.tsv")
                 shutil.copyfile(self.project(key) / "tracks.npz", replay / "tracks.npz")
-                (replay / "README.txt").write_text("Use the Swim Studio CLI with --config replay/config.json --cache-only to reproduce tables and plots. Raw video is not bundled.\n使用命令行 --config replay/config.json --cache-only 可复算表格与图形。包内不含原始视频。\n", encoding="utf-8")
+                (replay / "README.txt").write_text("Use the Swim Studio CLI with --config replay/config.json --cache-only to reproduce tables and plots. Raw video is not bundled. Frog silhouette reanalysis requires the original video.\n使用命令行 --config replay/config.json --cache-only 可复算表格与图形。包内不含原始视频。\n", encoding="utf-8")
                 job["files"] = [p.relative_to(output).as_posix() for p in sorted(output.rglob("*")) if p.is_file()]
                 archive = output / "results.zip"
                 with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
@@ -402,7 +410,7 @@ class Handler(BaseHTTPRequestHandler):
                             raise ValueError("Video copy interrupted / 视频复制中断")
                         file.write(chunk)
                         remaining -= len(chunk)
-                return self.reply(self.app.initialize(key, name, read_video_metadata(target)))
+                return self.reply(self.app.initialize(key, name, read_video_metadata(target), animal_mode=query.get("animal_mode", ["tadpole"])[0]))
             data = self.json_body()
             if route == "api/demo":
                 return self.reply(self.app.demo())

@@ -1,43 +1,41 @@
 # Swim Studio
 
-Bilingual, local swimming-behaviour analysis for single-animal videos. Calibrate a dish or rectangular tank, select head points, review direct-contact intervals, and export distance, speed, trajectories and analysis settings.
+Local, bilingual swimming analysis for **tadpoles and frogs/froglets**. Choose the animal mode before importing a video.
 
-[中文说明](README_CN.md) · [Downloads](https://github.com/Youweichen9155/Swim-Studio/releases/latest) · [Quick start](DESKTOP_QUICKSTART.md)
+[中文说明](README_CN.md) · [Mac / Windows applications and source](https://github.com/Youweichen9155/Swim-Studio/releases/latest) · [User guide](GUI_GUIDE.md)
 
-## Download and open
-
-| Platform | Download | Open after extracting |
+| Mode | Points to select | Measurements |
 | --- | --- | --- |
-| macOS 15+, Apple Silicon | [Mac application](https://github.com/Youweichen9155/Swim-Studio/releases/download/v1.2.0/Swim-Studio-1.2.0-macOS-AppleSilicon.zip) | `Swim Studio.app` |
-| Windows x64 | [Windows application](https://github.com/Youweichen9155/Swim-Studio/releases/download/v1.2.0/Swim-Studio-1.2.0-Windows-x64.zip) | `Swim Studio.exe` |
-
-Python, CoTracker3 and model weights are included. No setup or first-run download is required. Extract the entire package; on Windows keep `_internal` beside the executable. The launcher opens your local browser. Keep it open while analysing.
-
-These builds are not publisher-signed/notarized and may prompt for operating-system verification on first launch. The Mac package is for Apple Silicon, not Intel. The Windows package uses CPU tracking.
+| **Tadpole** | 4–6 stable head/eye features | Swimming distance, speed and trajectory |
+| **Frog / froglet** | 4–6 central trunk features; snout and rear-trunk axis points | Trunk-referenced distance and speed, posterior hindlimb silhouette width over time |
 
 ## Workflow
 
-1. Import a single-animal video.
-2. Select a circular/elliptical dish or rectangular tank and enter its real dimensions.
-3. Select 4–6 stable head/eye points on the first frame.
-4. Review direct stimulation contact and mark its start/end times, or confirm no contact.
-5. Run analysis, check trajectories and the review video, and download results.
+1. Choose **Tadpole** or **Frog / froglet**, then import one-animal video.
+2. Calibrate the dish or tank using its measured dimensions in mm.
+3. Select stable head points for tadpoles or trunk points for frogs in the first frame. For frogs, also mark the snout and rear trunk centre with **Body axis**.
+4. Check acquisition FPS. Manually mark direct stimulation contact, or confirm no contact.
+5. Run analysis. Review the trajectory; for frogs also check the orange posterior mask and adjust foreground threshold if necessary.
+6. Export tables, PDF/PNG plots, settings and review videos. Save projects to resume later.
 
-Recording FPS, frame sampling, model input size, crop and quality-control settings can be adjusted. Results include tables, PDF/PNG figures, configuration, contact intervals and provenance. Video analysis stays on your computer.
+### Tadpole guide
 
-![Illustrated workflow](web/guide-en.svg)
+![Tadpole workflow](web/guide-en.svg)
 
-## Source and validation
+### Frog guide
 
-Source is available in this repository and in the release source archive. To run from source, install Python and `requirements-gui.txt`, then run `python tadpole_gui.py`. Source mode offers a separate first-time model setup; the ready-to-run downloads already include it.
+![Frog workflow](web/guide-frog-en.svg)
 
-- [Detailed English GUI guide](GUI_GUIDE.md) · [中文操作指南](GUI_GUIDE_CN.md)
-- [Validation record](docs/VALIDATION.md) · [Methods](METHODS.md)
-- [Command-line and frozen-example reproduction](CLI_REFERENCE.md)
-- [Building desktop applications](BUILDING.md)
+Frog mode measures the **5th–95th percentile width of posterior silhouette pixels** in a body-aligned view. This describes opening and closing of the hindlimb region; it is not toe-to-toe distance, a joint angle or a force measurement. Poorly segmented or occluded frames remain missing. Check both trajectory and hindlimb valid-frame coverage.
 
-The included reproduction example contains de-identified cached trajectories and reviewed contact intervals. No original animal video is included.
+Use a fixed camera and approximately planar swimming. Camera motion is not corrected. For silhouette analysis, the animal should contrast clearly with the background; reflections, transparent animals or overlapping limbs may prevent reliable segmentation. Use the same settings and observation windows when comparing groups.
 
-## Third-party model
+## Files and setup
 
-Tracking uses Meta's CoTracker3, pinned to a verified source commit and weight checksum. CoTracker carries **CC BY-NC 4.0** terms, including a non-commercial restriction. See [third-party notices](THIRD_PARTY_NOTICES.md) and the bundled licences.
+The release page contains macOS Apple Silicon (macOS 15+) and Windows x64 applications with the runtime and model included. These packages are unsigned. For running from source, see [the user guide](GUI_GUIDE.md) and [build instructions](BUILDING.md).
+
+- [中文操作指南](GUI_GUIDE_CN.md) · [Measurement definitions](METHODS.md)
+- [Command-line reference](CLI_REFERENCE.md)
+- [Release notes](CHANGELOG.md)
+
+Videos are processed locally and are not included in this repository. The example contains de-identified cached tadpole trajectories. CoTracker3 is licensed under **CC BY-NC 4.0**, including its non-commercial restriction; see [third-party notices](THIRD_PARTY_NOTICES.md).

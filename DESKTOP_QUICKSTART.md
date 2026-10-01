@@ -12,9 +12,9 @@
 
 ## 分析步骤
 
-1. 导入单动物视频。
+1. 选择蝌蚪或小蛙模式，导入单动物视频。
 2. 选择容器，点选轮廓或四角，填写实际尺寸。
-3. 在首帧头部/眼睛选择 4–6 个点。
+3. 蝌蚪模式：首帧头部/眼睛选择 4–6 个点。小蛙模式：选择 4–6 个躯干点，再依次标记吻端、躯干后端两个身体轴点。
 4. 人工标记直接刺激接触的起止时间；无接触则勾选确认。
 5. 开始分析，检查轨迹，下载结果。点击“操作示意”查看图解；右上角切换语言。
 
@@ -24,10 +24,10 @@
 
 No Python installation, Git, dependency setup or model download is required. Extract the entire download. On an Apple Silicon Mac running macOS 15 or later, open **Swim Studio.app**. On 64-bit Windows, open **Swim Studio.exe**, keeping the `_internal` folder alongside it. The launcher opens a local browser interface. Keep the launcher open while working; use **Quit** to close the application.
 
-Import one-animal video → calibrate arena → select head points on the first frame → review direct-contact intervals → analyse and export. The **Visual guide** includes diagrams. All analysis is local and works offline, including on first launch. The Windows build uses CPU inference. Results and projects are stored separately from the application.
+Choose Tadpole or Frog / froglet → import one-animal video → calibrate arena → select head or trunk points on the first frame → for frogs, mark snout and rear-trunk axis points → review direct-contact intervals → analyse and export. Review the orange hindlimb mask and adjust the threshold if needed. The **Visual guide** includes diagrams. All analysis is local and works offline, including on first launch. The Windows build uses CPU inference. Results and projects are stored separately from the application.
 
 ## Third-party software
 
 CoTracker is by Meta Platforms, Inc. and affiliates, under CC BY-NC 4.0. The bundle contains its source/license, a pinned model version and verified weights, plus license notices for bundled dependencies. This application is intended for non-commercial research use consistent with that license.
 
-Release signing and platform verification status are recorded in the accompanying validation report. An unsigned build may trigger the operating system's publisher-verification dialog on another computer; a signed/notarized distribution is a separate release step.
+An unsigned build may trigger the operating system's publisher-verification dialog on another computer; a signed/notarized distribution is a separate release step.

@@ -60,9 +60,8 @@ def apply_query_exclusions(
 def validate_cache_against_config(
     cache: dict[str, np.ndarray], config: dict[str, Any]
 ) -> None:
-    expected = np.asarray(
-        config["head_point_selection"]["query_points_raw_px"], dtype=np.float32
-    )
+    from .modes import tracking_queries
+    expected = tracking_queries(config)
     observed = cache["query_points_raw_px"]
     if expected.shape != observed.shape or not np.allclose(expected, observed, atol=1e-4):
         raise ConfigError("Cached query points do not match head_point_selection")
@@ -199,10 +198,24 @@ def build_track_table(
     calibration = config["dish_calibration"]
     head_config = config["head_point_selection"]
     analysis_config = config["analysis"]
-    center_raw = np.median(tracks, axis=1)
-    spread = np.median(
-        np.linalg.norm(tracks - center_raw[:, None, :], axis=2), axis=1
-    )
+    from .modes import animal_mode
+    if animal_mode(config) == "frog":
+        # Invisible predictions must not pull the body reference off the animal.
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            center_raw = np.nanmedian(np.where(visible[:, :, None], tracks, np.nan), axis=1)
+        centre_fallback = np.median(tracks, axis=1)
+        center_raw = np.where(np.isfinite(center_raw), center_raw, centre_fallback)
+    else:
+        center_raw = np.median(tracks, axis=1)
+    distances = np.linalg.norm(tracks - center_raw[:, None, :], axis=2)
+    if animal_mode(config) == "frog":
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            spread = np.nanmedian(np.where(visible, distances, np.nan), axis=1)
+    else:
+        spread = np.median(distances, axis=1)
     visible_count = visible.sum(axis=1)
     normalized_radius = normalized_boundary(center_raw, calibration)
     base_valid = (
@@ -241,6 +254,21 @@ def build_track_table(
         analysis_config,
         max_gap_s=float(analysis_config["display_interpolation_gap_s"]),
     )
+
+    if animal_mode(config) == "frog":
+        contact = contact_audit["forceps_near_head"].to_numpy(bool)
+        # Segment before interpolation and smoothing: contact cannot influence
+        # adjacent accepted positions or contribute displacement across the gap.
+        smooth[:] = np.nan
+        interpolated[:] = False
+        analyzable[:] = False
+        step_distance[:] = np.nan
+        speed[:] = np.nan
+        edges = np.diff(np.r_[False, ~contact, False].astype(int))
+        for a, b in zip(np.where(edges == 1)[0], np.where(edges == -1)[0]):
+            result = compute_motion(mm[a:b], strict_valid[a:b], float(metadata["effective_fps"]), analysis_config)
+            smooth[a:b], interpolated[a:b], analyzable[a:b], step_distance[a:b], speed[a:b] = result[:5]
+        cumulative = np.nancumsum(np.nan_to_num(step_distance, nan=0.0))
 
     table = pd.DataFrame(
         {

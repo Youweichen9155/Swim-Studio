@@ -30,4 +30,4 @@ coll = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name='Swim Stud
 if sys.platform == 'darwin':
     app = BUNDLE(coll, name='Swim Studio.app', icon=None,
         bundle_identifier='org.swimstudio.analysis',
-        info_plist={'CFBundleShortVersionString': '1.2.0', 'NSHighResolutionCapable': True, 'LSMinimumSystemVersion': '15.0'})
+        info_plist={'CFBundleShortVersionString': '1.3.0', 'NSHighResolutionCapable': True, 'LSMinimumSystemVersion': '15.0'})

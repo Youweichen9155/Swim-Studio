@@ -1,3 +1,12 @@
+# Changelog
+
+## 1.3.0
+
+- Added bilingual Tadpole and Frog / froglet modes, with mode-specific point selection and illustrated help.
+- Frog mode exports trunk trajectories and posterior hindlimb silhouette width, with configurable foreground threshold, polarity and crop extent.
+- Added body-axis tracking, mask review images/video, validity flags, width curves and frame-level measurements.
+- Preserved legacy tadpole results and saved-project compatibility.
+
 ## 1.2.0 — Offline standalone applications
 
 - Bundle the Python runtime, pinned CoTracker source and verified weights in a native desktop launcher.

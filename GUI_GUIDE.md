@@ -1,8 +1,22 @@
 # Swim Studio: visual swimming analysis
 
+## Two animal modes (v1.3.0)
+
+Desktop applications include the runtime and model; Python setup below applies only to the source launchers.
+
+- **Tadpole:** select 4–6 stable head/eye points in frame 0.
+- **Frog / froglet:** select 4–6 stable central trunk points, avoiding limbs. With **Body axis**, mark the snout and rear trunk centre in that order.
+- Hindlimb measurement is enabled by default; disable it for locomotion only. Choose dark or light foreground, adjust the grayscale threshold and crop width in body lengths, then review the orange posterior mask.
+- Additional outputs: `10_frog_hindlimb_silhouette.tsv`, `10_frog_hindlimb_spread.pdf/png`, `11_frog_hindlimb_mask_review.png` and `frog_hindlimb_QA.mp4`.
+- Spread range is the valid-frame P95−P5 width, not cycle amplitude or frequency. Recomputing silhouettes requires the original video; cache-only runs explicitly report when it is unavailable.
+- Switching animal mode resets points. Existing projects without a mode remain tadpole projects.
+
+![Frog visual guide](web/guide-frog-en.svg)
+
+
 [中文说明](GUI_GUIDE_CN.md)
 
-## Launch
+## Launch from source
 
 Extract the complete distribution to a writable folder. Install **Python 3.11–3.13 (3.12 recommended)** first; on Windows select “Add Python to PATH”. Double-click `launch_windows.bat` on Windows or `launch_mac.command` on macOS. The launcher creates an isolated environment, installs analysis dependencies on the first launch and opens your default browser. Keep its terminal window open; press Ctrl+C there to exit.
 

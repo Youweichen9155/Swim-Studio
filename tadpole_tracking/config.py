@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 
-PROGRAM_VERSION = "1.2.0"
+PROGRAM_VERSION = "1.3.0"
 SCHEMA_VERSION = "1.0"
 COTRACKER_REPOSITORY_URL = "https://github.com/facebookresearch/co-tracker.git"
 COTRACKER_COMMIT = "82e02e8029753ad4ef13cf06be7f4fc5facdda4d"
@@ -86,6 +86,11 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ConfigError(
             f"schema_version must be '1.0' or '1.1'; received {config.get('schema_version')!r}"
         )
+    from .modes import validate_mode
+    try:
+        validate_mode(config)
+    except (ValueError, TypeError, KeyError) as exc:
+        raise ConfigError(str(exc)) from exc
     analysis_id = config.get("analysis_id")
     if not isinstance(analysis_id, str) or not analysis_id.strip():
         raise ConfigError("analysis_id must be a non-empty string")
