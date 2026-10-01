@@ -1,0 +1,42 @@
+name: Attach tested Windows package to a release
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: Successful desktop-build run ID
+        required: true
+      release_tag:
+        description: Existing release tag
+        required: true
+permissions:
+  contents: write
+  actions: read
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN: ${{ inputs.source_run }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - name: Verify successful build and attach package
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ ]]
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$(gh run view "$SOURCE_RUN" --json conclusion --jq .conclusion)" = success
+          test "$(gh run view "$SOURCE_RUN" --json workflowName --jq .workflowName)" = "Build offline desktop applications"
+          gh run download "$SOURCE_RUN" --name Swim-Studio-Windows-x64 --dir package
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('package/windows-standalone-test.json').read_text())
+          assert result['status']=='PASS'
+          PY
+          version="${RELEASE_TAG#v}"
+          asset="package/Swim-Studio-${version}-Windows-x64.zip"
+          test -f "$asset"
+          sha256sum "$asset" | sed 's@package/@@' > package/Windows-SHA256SUMS.txt
+          gh release upload "$RELEASE_TAG" "$asset" package/Windows-SHA256SUMS.txt
