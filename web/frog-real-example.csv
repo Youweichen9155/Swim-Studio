@@ -1,2 +1,2 @@
 example,frame,source_time_s,left_q05_px,right_q95_px,posterior_cutoff_px,pixels_per_cm,hindlimb_silhouette_spread_cm
-paired_reference,157,5.233333333333333,144.0,241.75,190.0,100,0.9775
+paired_reference,157,5.233333333333333,144.0,241.75,190.0,58.82352941176471,1.66175
