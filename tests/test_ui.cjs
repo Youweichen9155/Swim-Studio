@@ -1,0 +1,58 @@
+/* Local end-to-end test. npm install playwright, then pass app URL and test video. */
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const assert=require('node:assert/strict');
+const fs=require('node:fs/promises');
+const path=require('node:path');
+(async()=>{
+ const url=process.argv[2],video=process.argv[3],out=path.resolve(__dirname,'../docs');
+ const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{})});
+ const page=await browser.newPage({viewport:{width:1440,height:1080},locale:'en-US'});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ try {
+  await page.goto(url);
+  assert.equal(await page.locator('h1').textContent(),'A clearer view of swimming behaviour');
+  await page.locator('#language').click();assert.equal(await page.locator('#language').textContent(),'English');
+  await page.locator('#demo').click();await page.waitForFunction(()=>document.querySelector('#recordingName').textContent.includes('Demo'));
+  await page.locator('#language').click();assert.match(await page.locator('#recordingName').textContent(),/Demo/);
+  await page.locator('#run').click();await page.waitForFunction(()=>document.querySelector('#jobStatus').textContent.startsWith('Analysis complete'),{},{timeout:120000});
+  assert.match(await page.locator('#metrics').textContent(),/340\.64/);
+  assert.match(await page.locator('#metrics').textContent(),/83\.6%/);
+  const zipLink=await page.getByRole('link',{name:'Download results ZIP',exact:true}).getAttribute('href');
+  const zip=await page.request.get(new URL(zipLink,url).href);assert.equal(zip.status(),200);assert.ok((await zip.body()).length>1000);
+  const demoId=await page.locator('#projects').inputValue();
+  await page.reload();await page.locator('#projects').selectOption(demoId);await page.locator('#openProject').click();
+  await page.waitForFunction(()=>document.querySelector('#metrics').textContent.includes('340.64'));
+  await page.locator('#help').click();assert.equal(await page.locator('#guide').isVisible(),true);
+  await page.locator('#guide').screenshot({path:path.join(out,'guide-en.png')});await page.locator('#closeHelp').click();
+  await page.locator('#videoFile').setInputFiles(video);
+  await page.waitForFunction(()=>document.querySelector('#recordingName').textContent==='synthetic.mp4');
+  await page.waitForFunction(()=>document.querySelector('#videoMeta').textContent.includes('320 × 240'));
+  await page.locator('#arenaType').selectOption('rectangle');
+  const canvas=page.locator('#canvas');await canvas.scrollIntoViewIfNeeded();
+  async function point(x,y){await canvas.scrollIntoViewIfNeeded();const b=await canvas.boundingBox();await page.mouse.click(b.x+x*b.width/320,b.y+y*b.height/240);}
+  await point(15,20);await point(305,20);await point(305,220);await point(15,220);
+  await page.locator('#tankWidth').fill('200');await page.locator('#tankHeight').fill('85');await page.locator('#calibrationReviewed').check();
+  await page.getByRole('button',{name:'Head points',exact:true}).click();await point(74,104);await point(74,116);await point(84,105);await point(84,115);
+  await page.locator('#modelSize').selectOption('384');await page.locator('#makeQA').uncheck();
+  await page.locator('#reviewed').check();await page.locator('#save').click();await page.waitForFunction(()=>document.querySelector('#message').textContent==='Project saved.');
+  await page.locator('#contactStart').fill('0.1');await page.locator('#contactEnd').fill('999');await page.locator('#addContact').click();assert.match(await page.locator('#message').textContent(),/Contact times/);
+  await page.locator('#frameNumber').fill('15');await page.locator('#frameNumber').press('Tab');await page.waitForFunction(()=>document.querySelector('#timeLabel').textContent==='0.500 s');
+  await page.locator('#markStart').click();await page.locator('#frameNumber').fill('20');await page.locator('#frameNumber').press('Tab');await page.waitForFunction(()=>document.querySelector('#timeLabel').textContent==='0.667 s');
+  await page.locator('#markEnd').click();await page.locator('#addContact').click();assert.match(await page.locator('#contactList').textContent(),/0.500/);
+  await page.locator('#clearContacts').click();await page.locator('#reviewed').check();await page.locator('#save').click();
+  const projectId=await page.locator('#projects').inputValue();
+  const exported=page.waitForEvent('download');await page.locator('#export').click();const download=await exported;const downloaded=await download.path();const settings=JSON.parse(await fs.readFile(downloaded,'utf8'));assert.equal(settings.config.dish_calibration.type,'rectangle');assert.equal(settings.config.head_point_selection.query_points_raw_px.length,4);
+  await page.locator('#settingsImport').setInputFiles(downloaded);assert.equal(await page.locator('#calibrationReviewed').isChecked(),false);await page.locator('#calibrationReviewed').check();await page.locator('#reviewed').check();
+  await page.locator('#firstFrame').click();await page.locator('#language').click();await page.evaluate(()=>window.scrollTo(0,0));
+  await page.screenshot({path:path.join(out,'gui-zh.png'),fullPage:true});
+  await page.locator('#language').click();await page.screenshot({path:path.join(out,'gui-en.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});assert.ok(await page.locator('#run').isVisible());
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+  await page.setViewportSize({width:1440,height:1080});
+  const denied=await page.request.get(new URL('/wrong-token/api/projects',url).href);assert.equal(denied.status(),403);
+  const crossOrigin=await page.request.post(new URL('api/demo',url).href,{headers:{Origin:'https://example.org'},data:{}});assert.equal(crossOrigin.status(),403);
+  assert.deepEqual(errors,[]);
+  const report={status:'PASS',project:projectId,checks:['English/Chinese switching','cached demo numerical results','ZIP download','saved-project result history','illustrated guide','video import and preview','four-corner calibration','head-point selection','contact interval validation','frame stepping and time labels','settings export/import','390px responsive layout','token and Origin checks','no JavaScript exceptions']};
+  await fs.writeFile(path.join(out,'ui-test-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+ } catch(error){console.error('UI STATUS:',await page.locator('#message').textContent());await page.screenshot({path:path.join(out,'ui-test-failure.png'),fullPage:true});throw error;} finally {await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1);});

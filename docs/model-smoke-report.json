@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "model_was_run": true,
+  "tracked_frames": 48,
+  "analyzable_fraction": 1.0,
+  "distance_mm": 16.598272289112597,
+  "input": "Synthetic moving textured target; not biological accuracy validation",
+  "platform": "macOS-15.7.3-arm64-64bit",
+  "software": {
+    "python": "3.12.14",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "opencv-python-headless": "5.0.0.93",
+    "torch": "2.14.1",
+    "torchvision": "0.29.1",
+    "platform": "macOS-15.7.3-arm64-64bit",
+    "python_implementation": "CPython",
+    "byteorder": "little"
+  }
+}

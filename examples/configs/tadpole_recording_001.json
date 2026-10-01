@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "analysis_id": "tadpole_recording_001",
+  "video": {
+    "logical_name": "tadpole_recording_001.mp4",
+    "path": "../input/tadpole_recording_001.mp4",
+    "fps": 30.024086318764635,
+    "frame_count": 4657,
+    "width_px": 1920,
+    "height_px": 1080
+  },
+  "model_tracking": {
+    "repository_url": "https://github.com/facebookresearch/co-tracker.git",
+    "commit": "82e02e8029753ad4ef13cf06be7f4fc5facdda4d",
+    "repository_path": "../../third_party/co-tracker",
+    "model_name": "cotracker3_online",
+    "checkpoint_url": "https://huggingface.co/facebook/cotracker3/resolve/main/scaled_online.pth",
+    "checkpoint_sha256": "205d34789f19699d64b22cf93f9b697f15f28d4025240e31532e504109837218",
+    "cache_path": "../../test_data/example_recording/cotracker_head_points.npz",
+    "frame_step": 1,
+    "device": "auto",
+    "roi_raw_px": [550, 170, 1400, 1020],
+    "model_size_px": [560, 560]
+  },
+  "head_point_selection": {
+    "query_points_raw_px": [
+      [773, 603],
+      [784, 593],
+      [808, 596],
+      [824, 606],
+      [790, 622],
+      [810, 632]
+    ],
+    "drop_query_indices": [],
+    "minimum_visible_points": 2,
+    "maximum_spread_px": 38.0
+  },
+  "dish_calibration": {
+    "center_raw_px": [974.436, 596.179],
+    "ellipse_diameters_px": [804.135, 805.331],
+    "ellipse_angle_degrees": 139.4753,
+    "dish_diameter_mm": 100.0
+  },
+  "forceps_contact_review": {
+    "source": "manual_review",
+    "intervals_tsv": "../forceps_intervals/tadpole_recording_001_forceps_contacts.tsv",
+    "contact_episode_gap_s": 0.25,
+    "stimulation_bout_gap_s": 2.0,
+    "minimum_contact_duration_s": 0.12,
+    "post_stimulus_window_s": 2.0
+  },
+  "analysis": {
+    "short_gap_interpolation_s": 0.5,
+    "savgol_window_s": 0.5,
+    "savgol_polynomial_order": 2,
+    "display_interpolation_gap_s": 2.0,
+    "maximum_speed_mm_s": 200.0,
+    "maximum_normalized_dish_radius": 1.05
+  },
+  "output": {
+    "directory": "../../example_run/tadpole_recording_001",
+    "make_plots": true,
+    "make_video_qa": true
+  }
+}
+

@@ -1,0 +1,7 @@
+# Portable GUI/analysis environment. Exact versions are recorded for each run.
+# Keep requirements-lock.txt for reproducing the original v1.0 environment.
+numpy>=1.26,<3
+pandas>=2.2,<4
+scipy>=1.13,<2
+matplotlib>=3.8,<4
+opencv-python-headless>=4.10,<6

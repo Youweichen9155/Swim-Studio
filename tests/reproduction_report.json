@@ -1,0 +1,147 @@
+{
+  "program_version": "1.0.0",
+  "test_timestamp_utc": "2026-08-04T05:51:11.480314+00:00",
+  "status": "PASS",
+  "input_mode": "tracking_cache",
+  "model_was_run": false,
+  "video_sha256_status": "computed_at_runtime",
+  "video_sha256": "0bcb933238da6b5c8f4d104846d046720c36a121245c9186d451e474e9781b6c",
+  "config_sha256": "d9521340a095079c96964d89cc92415e55b6125fff9869cc8a0c59d7b0911d89",
+  "cache_sha256": "ff14ccf044760e7ff2affc4a2a4ce74b7a9c28b6218b97e11d5924d6455f1660",
+  "forceps_tsv_sha256": "e33218a4d881a2913e1fb27209d0950ccd2aacccfd16ba7aba8e66905c44efb9",
+  "metric_checks": [
+    {
+      "metric": "tracked_frames",
+      "expected": 4657,
+      "observed": 4657,
+      "absolute_error": 0,
+      "tolerance": 0,
+      "pass": true
+    },
+    {
+      "metric": "independent_stimulation_bouts",
+      "expected": 14,
+      "observed": 14,
+      "absolute_error": 0,
+      "tolerance": 0,
+      "pass": true
+    },
+    {
+      "metric": "total_analyzable_distance_mm",
+      "expected": 340.6404826759847,
+      "observed": 340.6404826759847,
+      "absolute_error": 0.0,
+      "tolerance": 1e-09,
+      "pass": true
+    },
+    {
+      "metric": "mean_distance_2s_post_stimulus_mm",
+      "expected": 15.90019593671791,
+      "observed": 15.90019593671791,
+      "absolute_error": 0.0,
+      "tolerance": 1e-09,
+      "pass": true
+    },
+    {
+      "metric": "median_distance_2s_post_stimulus_mm",
+      "expected": 11.705457312710088,
+      "observed": 11.705457312710088,
+      "absolute_error": 0.0,
+      "tolerance": 1e-09,
+      "pass": true
+    },
+    {
+      "metric": "overall_mean_speed_mm_s",
+      "expected": 2.196610664847384,
+      "observed": 2.1966106648473827,
+      "absolute_error": 1.3322676295501878e-15,
+      "tolerance": 1e-12,
+      "pass": true
+    },
+    {
+      "metric": "analyzable_fraction",
+      "expected": 0.8359458879106721,
+      "observed": 0.8359458879106721,
+      "absolute_error": 0.0,
+      "tolerance": 1e-12,
+      "pass": true
+    }
+  ],
+  "edge_case_checks": [
+    {
+      "case": "empty_manual_interval_table",
+      "pass": true,
+      "detail": "Produces an all-false contact mask."
+    },
+    {
+      "case": "zero_stimulation_bouts",
+      "pass": true,
+      "detail": "Returns typed empty event/repeat tables and zero bout IDs."
+    },
+    {
+      "case": "empty_repeat_plotting",
+      "pass": true,
+      "detail": "Creates non-crashing placeholder plots for empty repeats."
+    },
+    {
+      "case": "three_frame_short_video_motion",
+      "pass": true,
+      "detail": "Falls back safely when the Savitzky-Golay window is longer than the clip."
+    },
+    {
+      "case": "cache_only_did_not_run_model",
+      "pass": true,
+      "detail": "The cache path does not import or execute torch/CoTracker."
+    }
+  ],
+  "software_checks": [
+    {
+      "software": "python",
+      "expected": "3.12.13",
+      "observed": "3.12.13",
+      "pass": true
+    },
+    {
+      "software": "torch",
+      "expected": "2.13.0",
+      "observed": "2.13.0",
+      "pass": true
+    },
+    {
+      "software": "torchvision",
+      "expected": "0.28.0",
+      "observed": "0.28.0",
+      "pass": true
+    },
+    {
+      "software": "opencv-python-headless",
+      "expected": "5.0.0.93",
+      "observed": "5.0.0.93",
+      "pass": true
+    },
+    {
+      "software": "numpy",
+      "expected": "2.3.5",
+      "observed": "2.3.5",
+      "pass": true
+    },
+    {
+      "software": "pandas",
+      "expected": "2.2.3",
+      "observed": "2.2.3",
+      "pass": true
+    },
+    {
+      "software": "scipy",
+      "expected": "1.18.0",
+      "observed": "1.18.0",
+      "pass": true
+    },
+    {
+      "software": "matplotlib",
+      "expected": "3.11.1",
+      "observed": "3.11.1",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "tracked_frames": 4657,
+  "independent_stimulation_bouts": 14,
+  "total_analyzable_distance_mm": 340.6404826759847,
+  "mean_distance_2s_post_stimulus_mm": 15.90019593671791,
+  "median_distance_2s_post_stimulus_mm": 11.705457312710088,
+  "overall_mean_speed_mm_s": 2.196610664847384,
+  "analyzable_fraction": 0.8359458879106721
+}
+

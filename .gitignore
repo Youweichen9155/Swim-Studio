@@ -1,0 +1,29 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+
+# Runtime inputs and generated outputs
+examples/input/
+example_run/
+run_output/
+third_party/
+tests/_reproduction_work/
+
+# Raw or generated video is never versioned
+*.mp4
+*.mov
+*.avi
+
+# Release archives are attached to GitHub Releases
+dist/
+build/
+build_assets/
+.pyinstaller-cache/
+
+# GUI environment and private local projects
+.venv-gui/
+dist/
+gui_workspace/
+.gui_test_workspace/
+.tests_cache/

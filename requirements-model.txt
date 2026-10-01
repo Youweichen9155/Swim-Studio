@@ -1,0 +1,4 @@
+# Optional: only needed to track new videos, not for the GUI or cached demo.
+torch>=2.5,<3
+torchvision>=0.20,<1
+einops>=0.7,<1

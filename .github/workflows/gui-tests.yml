@@ -1,0 +1,46 @@
+name: Cross-platform GUI and analysis checks
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+jobs:
+  analysis:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements-gui.txt
+      - run: python tests/test_gui_analysis.py
+  interface:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements-gui.txt
+      - run: npm install --no-save playwright
+      - run: npx playwright install chromium
+      - run: python tests/run_ui_tests.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gui-check-${{ matrix.os }}
+          path: |
+            docs/ui-test-report.json
+            docs/gui-*.png
+            docs/ui-test-failure.png

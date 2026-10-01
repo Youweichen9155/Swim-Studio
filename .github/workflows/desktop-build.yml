@@ -1,0 +1,36 @@
+name: Build offline desktop applications
+on:
+  workflow_dispatch:
+  push:
+    branches: ['main', 'codex/standalone-desktop']
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-gui.txt -r requirements-build.txt
+      - run: python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install einops
+      - run: git clone https://github.com/facebookresearch/co-tracker.git build_model
+      - run: git -C build_model checkout 82e02e8029753ad4ef13cf06be7f4fc5facdda4d
+      - run: python scripts/prepare_desktop_assets.py --repository build_model
+      - run: python -m PyInstaller --noconfirm SwimStudio.spec
+      - run: python tests/create_synthetic_video.py .gui_test_workspace/synthetic.mp4
+      - run: python tests/test_standalone.py "dist/Swim Studio/Swim Studio.exe" --video .gui_test_workspace/synthetic.mp4 --report dist/windows-standalone-test.json
+      - shell: pwsh
+        run: |
+          Copy-Item DESKTOP_QUICKSTART.md "dist/Swim Studio/READ ME.md"
+          Compress-Archive -Path "dist/Swim Studio" -DestinationPath dist/Swim-Studio-1.2.0-Windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Swim-Studio-Windows-x64
+          path: |
+            dist/Swim-Studio-1.2.0-Windows-x64.zip
+            dist/windows-standalone-test.json
+          retention-days: 30

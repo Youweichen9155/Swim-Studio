@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620">
+ <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#087f72"/></marker></defs>
+ <rect width="1100" height="620" fill="#f6f9f7"/>
+ <g font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif" fill="#17312f">
+ <text x="40" y="42" font-size="23" font-weight="bold">在画面中校准，在首帧选择头部点</text>
+ <text x="40" y="68" font-size="13" fill="#6b7b79">固定相机 · 同一活动平面 · 每段视频一只动物</text>
+ <rect x="30" y="95" width="510" height="275" rx="14" fill="white" stroke="#dbe6e2"/>
+ <rect x="560" y="95" width="510" height="275" rx="14" fill="white" stroke="#dbe6e2"/>
+ <text x="55" y="128" font-size="18" font-weight="bold">01 · 圆形培养皿</text>
+ <text x="585" y="128" font-size="18" font-weight="bold">02 · 方形 / 长方形培养缸</text>
+ <ellipse cx="275" cy="230" rx="125" ry="73" fill="#e9f3ef" stroke="#087f72" stroke-width="3"/>
+ <rect x="150" y="157" width="250" height="146" fill="none" stroke="#94bcb0" stroke-dasharray="5 5"/>
+ <g fill="#cb692c"><circle cx="150" cy="157" r="6"/><circle cx="400" cy="303" r="6"/></g>
+ <text x="133" y="150" font-size="14">1</text><text x="408" y="317" font-size="14">2</text>
+ <path d="M165 230 H385" stroke="#087f72" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+ <rect x="202" y="209" width="148" height="25" rx="5" fill="#e9f3ef"/><text x="276" y="225" text-anchor="middle" font-size="13">真实直径（mm）</text>
+ <path d="M660 170 L940 155 L985 297 L630 302 Z" fill="#e9f3ef" stroke="#087f72" stroke-width="3"/>
+ <g fill="#cb692c"><circle cx="660" cy="170" r="6"/><circle cx="940" cy="155" r="6"/><circle cx="985" cy="297" r="6"/><circle cx="630" cy="302" r="6"/></g>
+ <g font-size="15"><text x="642" y="160">1</text><text x="944" y="143">2</text><text x="994" y="305">3</text><text x="609" y="317">4</text></g>
+ <path d="M689 196 L914 184" stroke="#087f72" marker-end="url(#arrow)"/><text x="803" y="225" text-anchor="middle" font-size="14">边 1→2（mm）</text>
+ <g font-size="12" fill="#6b7b79"><text x="55" y="347">点选外接框两角 → 输入真实直径 → 调整角度</text><text x="585" y="347">沿边界依次选取四角；边 1→2 为宽，边 2→3 为高</text></g>
+ <rect x="30" y="390" width="510" height="177" rx="14" fill="white" stroke="#dbe6e2"/>
+ <rect x="560" y="390" width="510" height="177" rx="14" fill="white" stroke="#dbe6e2"/>
+ <text x="55" y="424" font-size="16" font-weight="bold">03 · 首帧：选取头部 / 眼睛的稳定点</text>
+ <ellipse cx="185" cy="485" rx="47" ry="25" fill="#9cbbab"/>
+ <path d="M225 478 Q275 455 309 492 Q268 487 225 494" fill="#b7cebf"/>
+ <g fill="#17312f"><circle cx="160" cy="470" r="6"/><circle cx="160" cy="499" r="6"/></g>
+ <g fill="#cb692c" stroke="white" stroke-width="1.5"><circle cx="166" cy="474" r="4"/><circle cx="166" cy="495" r="4"/><circle cx="180" cy="481" r="4"/><circle cx="191" cy="492" r="4"/></g>
+ <text x="55" y="546" font-size="12" fill="#6b7b79">至少 2 点，建议 4–6 点；避开尾部</text>
+ <text x="585" y="424" font-size="16" font-weight="bold">04 · 接触标记：起点 → 终点 → 核对</text>
+ <rect x="610" y="474" width="405" height="15" rx="6" fill="#dcece4"/>
+ <rect x="745" y="474" width="97" height="15" fill="#e69769"/>
+ <path d="M745 455 V507 M842 455 V507" stroke="#cb692c" stroke-width="2"/>
+ <text x="610" y="518" font-size="12" fill="#6b7b79">0 s</text><text x="998" y="518" font-size="12" fill="#6b7b79">t</text>
+ <text x="585" y="546" font-size="11" fill="#6b7b79">直接接触区间先排除，再按记录的规则处理短缺失</text>
+ <text x="550" y="600" text-anchor="middle" font-size="13" fill="#087f72">检查轨迹与有效帧比例，再导出结果</text>
+ </g></svg>

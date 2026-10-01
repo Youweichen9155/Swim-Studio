@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "project": "8cc0cc97ac4e4a68bccb1fdcc5e7aa8c",
+  "checks": [
+    "English/Chinese switching",
+    "cached demo numerical results",
+    "ZIP download",
+    "saved-project result history",
+    "illustrated guide",
+    "video import and preview",
+    "four-corner calibration",
+    "head-point selection",
+    "contact interval validation",
+    "frame stepping and time labels",
+    "settings export/import",
+    "390px responsive layout",
+    "token and Origin checks",
+    "no JavaScript exceptions"
+  ]
+}
