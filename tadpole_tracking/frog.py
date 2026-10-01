@@ -121,7 +121,9 @@ def analyse_hindlimbs(video, tracks, visible, raw_indices, body_table, config, p
         if b-a >= 5:
             values[a:b] = savgol_filter(values[a:b], 5, 2)
     table["hindlimb_spread_smoothed_mm"] = values
+    table["hindlimb_silhouette_spread_cm"] = table.hindlimb_silhouette_spread_mm / 10
     table.to_csv(paths["tables"] / "10_frog_hindlimb_silhouette.tsv", sep="\t", index=False)
+    table.to_csv(paths["tables"] / "10_frog_hindlimb_silhouette.csv", index=False)
     valid_values = table.hindlimb_silhouette_spread_mm.dropna().to_numpy()
     result = {"hindlimb_valid_fraction":float(valid.mean()), "hindlimb_mean_spread_mm":float(valid_values.mean()) if len(valid_values) else None,
               "hindlimb_spread_p95_minus_p05_mm":float(np.ptp(np.quantile(valid_values,[.05,.95]))) if len(valid_values) else None,

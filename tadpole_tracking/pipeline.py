@@ -259,6 +259,10 @@ def run_analysis(
             print("Measuring posterior silhouettes / 测量后肢展开轮廓…", flush=True)
             summary.update(analyse_hindlimbs(video_path, axis_tracks, axis_visible, raw_indices, table, config, paths,
                 make_video=config["output"]["make_video_qa"] and not skip_video_qa))
+    if video_present and config["output"].get("snapshot_times_s"):
+        from .snapshots import export_snapshots
+        print("Exporting requested frames / 导出指定时间截图…", flush=True)
+        summary["requested_snapshots"] = export_snapshots(video_path, raw_indices, table, axis_tracks, config, paths)
     arena = config["dish_calibration"]
     if arena.get("type") == "rectangle":
         summary.update(arena_type="rectangle", arena_width_mm=arena["width_mm"], arena_height_mm=arena["height_mm"])

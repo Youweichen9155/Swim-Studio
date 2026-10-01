@@ -28,7 +28,7 @@ class FrogTests(unittest.TestCase):
         self.config['head_point_selection'].update(query_points_raw_px=[[146,106],[154,106],[146,116],[154,116]],drop_query_indices=[],minimum_visible_points=2)
         self.config['dish_calibration']={'type':'rectangle','corners_raw_px':[[0,0],[319,0],[319,239],[0,239]],'width_mm':319.,'height_mm':239.}
         self.config['forceps_contact_review']['intervals_tsv']='contacts.tsv'
-        self.config['output'].update(directory='results',make_video_qa=True)
+        self.config['output'].update(directory='results',make_video_qa=True,snapshot_times_s=[.1,.333])
 
     @staticmethod
     def frog_frame(spread=45):
@@ -112,6 +112,12 @@ class FrogTests(unittest.TestCase):
             self.assertTrue(table.loc[0:8,'hindlimb_valid'].all())
             self.assertTrue((root/'results/video/frog_hindlimb_QA.mp4').exists())
             self.assertGreater(out['summary']['hindlimb_spread_p95_minus_p05_mm'],1.)
+            chosen=pd.read_csv(root/'results/tables/12_requested_snapshots.csv')
+            self.assertEqual(chosen.raw_frame.tolist(),[3,10])
+            self.assertEqual(chosen.measurement_status.tolist(),['measured','excluded'])
+            self.assertAlmostEqual(chosen.iloc[0].hindlimb_silhouette_spread_mm,table.iloc[3].hindlimb_silhouette_spread_mm)
+            self.assertTrue((root/'results/snapshots'/chosen.iloc[0].original_png).exists())
+            self.assertTrue((root/'results/snapshots'/chosen.iloc[0].panel_png).exists())
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

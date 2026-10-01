@@ -212,6 +212,13 @@ def validate_config(config: dict[str, Any]) -> None:
 
     output = _require_mapping(config, "output")
     _require_relative_path(output, "directory", "output.directory")
+    snapshots = output.get("snapshot_times_s", [])
+    end_s = (video["frame_count"]-1) / video.get("timebase_fps", video["fps"])
+    if not isinstance(snapshots, list) or len(snapshots) > 24 or any(
+        isinstance(x, bool) or not isinstance(x, (int, float)) or not math.isfinite(x) or x < 0 or x > end_s
+        for x in snapshots
+    ):
+        raise ConfigError("Enter up to 24 snapshot times within the video / 截图时间须在视频范围内，最多 24 个")
     for key in ("make_plots", "make_video_qa"):
         if not isinstance(output.get(key), bool):
             raise ConfigError(f"output.{key} must be true or false")

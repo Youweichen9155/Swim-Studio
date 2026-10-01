@@ -2,6 +2,9 @@
 
 ## 1.3.0
 
+- Export screenshots at specified times, paired silhouette panels, and hindlimb width CSV/TSV files with mm/cm values.
+- Add a real same-frame video/silhouette example to the illustrated guide.
+
 - Added bilingual Tadpole and Frog / froglet modes, with mode-specific point selection and illustrated help.
 - Frog mode exports trunk trajectories and posterior hindlimb silhouette width, with configurable foreground threshold, polarity and crop extent.
 - Added body-axis tracking, mask review images/video, validity flags, width curves and frame-level measurements.

@@ -26,6 +26,12 @@ Local, bilingual swimming analysis for **tadpoles and frogs/froglets**. Choose t
 
 ![Frog workflow](web/guide-frog-en.svg)
 
+Enter `0.3, 0.5` under **Snapshots at chosen times** to export original frames, paired video/silhouette panels, separate silhouette PNG/PDF figures and a snapshot manifest. The hindlimb CSV/TSV contains time, frame number, width in mm and cm, and validity. Untracked or invalid frames retain missing measurements.
+
+![Real frame and matched silhouette](web/frog-real-example.png)
+
+Same-frame measurement example. Its value uses the example calibration; each project is measured using its own frames and calibration.
+
 Frog mode measures the **5th–95th percentile width of posterior silhouette pixels** in a body-aligned view. This describes opening and closing of the hindlimb region; it is not toe-to-toe distance, a joint angle or a force measurement. Poorly segmented or occluded frames remain missing. Check both trajectory and hindlimb valid-frame coverage.
 
 Use a fixed camera and approximately planar swimming. Camera motion is not corrected. For silhouette analysis, the animal should contrast clearly with the background; reflections, transparent animals or overlapping limbs may prevent reliable segmentation. Use the same settings and observation windows when comparing groups.
